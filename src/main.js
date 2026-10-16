@@ -1,5 +1,7 @@
 const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
 const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
+const {connectDB} = require('./db-connect')
+const getDestinations = require("./get-destinations");
 
 const SLACK_SECRET_ID = 'fake-slack-webhook';
 
@@ -28,8 +30,7 @@ async function sendSlackMessage(secretsClient, text) {
 async function runFn() {
   const client = new SQSClient({});
   const secretsClient = new SecretsManagerClient({});
-
-  console.log('starting service')
+    await connectDB()
 
   while (true) {
     const response = await client.send(new ReceiveMessageCommand({
@@ -40,8 +41,10 @@ async function runFn() {
 
     for (const message of response.Messages ?? []) {
       try {
-        const text = JSON.parse(message.Body).eventPayload.message;
-        await sendSlackMessage(secretsClient, text);
+        const messageBody = JSON.parse(message.Body);
+        const {userId, eventPayload = {}, configId} = messageBody;
+        const destinations = await getDestinations({userId, configId});
+        console.log('number of destinations: ', destinations);
 
         await client.send(new DeleteMessageCommand({
           QueueUrl: process.env.NOTIFICATION_DELIVERY_QUEUE_URL,
