@@ -7,7 +7,7 @@ const fs = require('fs')
 
 let dbPool
 
-const connectDB = async (secretName) => {
+const connectDB = async () => {
     try {
 
         let poolConfig
@@ -38,7 +38,7 @@ const connectDB = async (secretName) => {
 
             const response = await secretClient.send(
                 new GetSecretValueCommand({
-                    SecretId: secretName,
+                    SecretId: process.env.DB_SECRET_ARN,
                 })
             );
 
