@@ -2,6 +2,7 @@ const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require('@aws
 const {connectDB} = require('./db-connect')
 const getDestinations = require("./get-destinations");
 const whatsappSender = require("./whatsapp-sender");
+const smsSender = require("./sms-sender");
 
 // const SLACK_SECRET_ID = 'fake-slack-webhook';
 //
@@ -29,7 +30,7 @@ const whatsappSender = require("./whatsapp-sender");
 
 const senderMap = {
     whatsapp: whatsappSender,
-    // sms: '',
+    sms: smsSender,
     // slack: '',
     default: async ({destination})=> {
         throw new Error(`${destination.channelType} not implemented for sending yet`)
