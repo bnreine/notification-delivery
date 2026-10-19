@@ -3,6 +3,7 @@ const {connectDB} = require('./db-connect')
 const getDestinations = require("./get-destinations");
 const whatsappSender = require("./whatsapp-sender");
 const smsSender = require("./sms-sender");
+const slackSender = require("./slack-sender");
 
 // const SLACK_SECRET_ID = 'fake-slack-webhook';
 //
@@ -31,7 +32,7 @@ const smsSender = require("./sms-sender");
 const senderMap = {
     whatsapp: whatsappSender,
     sms: smsSender,
-    // slack: '',
+    slack: slackSender,
     default: async ({destination})=> {
         throw new Error(`${destination.channelType} not implemented for sending yet`)
     }
