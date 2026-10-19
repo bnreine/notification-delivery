@@ -38,7 +38,6 @@ const senderMap = {
 
 async function runFn() {
   const client = new SQSClient({});
-  // const secretsClient = new SecretsManagerClient({});
     await connectDB()
 
   while (true) {
