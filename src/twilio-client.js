@@ -13,7 +13,7 @@ async function getTwilioClient() {
         if (process.env.NODE_ENV === 'dev') {
             secret = {
                 sid: process.env.TWILIO_API_KEY_SID,
-                secret: process.env.TWILIO_API_KEY_SECRET,
+                clientSecret: process.env.TWILIO_API_KEY_SECRET,
             };
         } else {
             const secretsClient = new SecretsManagerClient({});
@@ -23,7 +23,7 @@ async function getTwilioClient() {
             secret = JSON.parse(SecretString);
         }
 
-        client = twilio(secret.sid, secret.secret, {
+        client = twilio(secret.sid, secret.clientSecret, {
             accountSid: process.env.TWILIO_ACCOUNT_SID,
         });
     }
