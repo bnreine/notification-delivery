@@ -1,5 +1,4 @@
 const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
-const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
 const {connectDB} = require('./db-connect')
 const getDestinations = require("./get-destinations");
 const whatsappSender = require("./whatsapp-sender");
@@ -32,14 +31,14 @@ const senderMap = {
     whatsapp: whatsappSender,
     // sms: '',
     // slack: '',
-    default: async ({channelType})=> {
-        throw new Error(`${channelType} not implemented for sending yet`)
+    default: async ({destination})=> {
+        throw new Error(`${destination.channelType} not implemented for sending yet`)
     }
 }
 
 async function runFn() {
   const client = new SQSClient({});
-  const secretsClient = new SecretsManagerClient({});
+  // const secretsClient = new SecretsManagerClient({});
     await connectDB()
 
   while (true) {
@@ -54,12 +53,13 @@ async function runFn() {
         const messageBody = JSON.parse(message.Body);
         const {userId, eventPayload = {}, configId} = messageBody;
         const destinations = await getDestinations({userId, configId});
-        console.log('number of destinations: ', destinations);
+        console.log('number of destinations: ', destinations.length);
+          console.log('config body: ', JSON.stringify(messageBody));
 
         for (const destination of destinations) {
             try{
-                const sender = senderMap[destination.channelType];
-                await sender()
+                const sender = senderMap[destination.channelType] || senderMap.default;
+                await sender({destination,message: eventPayload.message})
             } catch (err){
                 console.error(err)
                 // now move on so it doesn't disrupt sending other things

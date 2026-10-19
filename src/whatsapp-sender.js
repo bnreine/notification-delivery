@@ -1,4 +1,4 @@
-const whatsappSender = async () => {
+const whatsappSender = async ({destination, message}) => {
     console.log('whatsapp sent')
     return
 }
