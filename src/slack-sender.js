@@ -1,5 +1,9 @@
+const decrypt = require('./decrypt');
+
 const slackSender = async ({destination, message}) => {
-    const response = await fetch(destination.metadata.webhookUrl, {
+    const webhookUrl = await decrypt(destination.metadata.webhookUrl);
+
+    const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: message }),
